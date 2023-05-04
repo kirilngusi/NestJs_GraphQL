@@ -17,9 +17,10 @@ export class AuthResolver {
   @Mutation(() => AuthCredentialDto)
   async signup(@Args('data') data: SignupInput) {
     data.email = data.email.toLowerCase();
-    const { user } = await this.authService.createUser(data);
+    const { accessToken, refreshToken } = await this.auth.createUser(data);
     return {
-      user,
+      accessToken,
+      refreshToken,
     };
   }
 }
