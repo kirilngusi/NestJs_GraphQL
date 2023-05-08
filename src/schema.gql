@@ -2,12 +2,30 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: Int!
-  name: String
-  username: String!
+type Auth {
+  """JWT access token"""
+  accessToken: JWT!
+
+  """JWT refresh token"""
+  refreshToken: JWT!
 }
 
+"""
+A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
+"""
+scalar JWT
+
 type Query {
-  findAllUser: [User!]!
+  sayHello: String!
+}
+
+type Mutation {
+  signup(data: SignupInput!): Auth!
+}
+
+input SignupInput {
+  email: String!
+  password: String!
+  fullName: String!
+  phone_number: String!
 }
