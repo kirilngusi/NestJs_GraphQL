@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { User } from './entities/auth.entity';
-import { PrismaService } from '../../prisma/prisma.service';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
+// import { User } from './entities/auth.entity';
+import { PrismaService } from 'nestjs-prisma';
 import { AuthCredentialDto } from './dto/user.dto';
 import { SignupInput } from './dto/signup.input';
-import { Token } from './model/token.model';
 import { PasswordService } from './password.service';
+import { Token } from './model/token.model';
+import { JwtService } from '@nestjs/jwt';
+import { Prisma, User } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async createUser(payload: SignupInput): Promise<Token> {
+  async createUser(payload: any): Promise<Token> {
     const hashedPassword = await this.passwordService.hashPassword(
       payload.password,
     );
@@ -41,12 +50,49 @@ export class AuthService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    const user = new User();
+  // async findAll(): Promise<User[]> {
+  //   const user = new User();
+  //
+  //   user.id = 1;
+  //   user.username = 'kiril';
+  //
+  //   return [user];
+  // }
 
-    user.id = 1;
-    user.username = 'kiril';
+  generateTokens(payload: { userId: string }): Token {
+    return {
+      accessToken: this.generateAccessToken(payload),
+      refreshToken: this.generateRefreshToken(payload),
+    };
+  }
 
-    return [user];
+  private generateAccessToken(payload: { userId: string }): string {
+    return this.jwtService.sign(payload);
+  }
+
+  private generateRefreshToken(payload: { userId: string }): string {
+    const securityConfig = this.configService.get('security');
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: securityConfig.refreshIn,
+    });
+  }
+
+  refreshToken(token: string) {
+    try {
+      const { userId } = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      });
+
+      return this.generateTokens({
+        userId,
+      });
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  validateUser(userId: string): Promise<User> {
+    return this.prisma.user.findUnique({ where: { id: userId } });
   }
 }
