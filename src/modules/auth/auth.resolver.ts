@@ -1,12 +1,12 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { User } from './entities/auth.entity';
 import { AuthCredentialDto } from './dto/user.dto';
 import { Parent, ResolveField } from '@nestjs/graphql';
-import { SignupInput } from './dto/signup.input';
-import { Auth } from './model/auth.model';
+import { SignupInput, LoginInput, RefreshTokenInput } from './dto';
+import { Auth, Token } from './model';
+import { User } from '../user/models';
 
-@Resolver((of) => User)
+@Resolver((of) => Auth)
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
@@ -25,5 +25,28 @@ export class AuthResolver {
       accessToken,
       refreshToken,
     };
+  }
+
+  @Mutation(() => Auth)
+  async login(@Args('data') { email, password }: LoginInput) {
+    const { accessToken, refreshToken } = await this.authService.login(
+      email.toLowerCase(),
+      password,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  @Mutation(() => Token)
+  async refreshToken(@Args() { token }: RefreshTokenInput) {
+    return this.authService.refreshToken(token);
+  }
+
+  @ResolveField('user', () => User)
+  async user(@Parent() auth: Auth) {
+    return await this.authService.getUserFromToken(auth.accessToken);
   }
 }

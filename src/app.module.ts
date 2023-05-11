@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { join } from 'path';
 import { PrismaModule, loggingMiddleware } from 'nestjs-prisma';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './modules/user/user.module';
 import config from './modules/common/configs/config';
 
 @Module({
@@ -29,6 +30,7 @@ import config from './modules/common/configs/config';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

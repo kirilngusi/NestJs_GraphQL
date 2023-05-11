@@ -2,6 +2,8 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 // import { User } from './entities/auth.entity';
 import { PrismaService } from 'nestjs-prisma';
@@ -50,14 +52,31 @@ export class AuthService {
     }
   }
 
-  // async findAll(): Promise<User[]> {
-  //   const user = new User();
-  //
-  //   user.id = 1;
-  //   user.username = 'kiril';
-  //
-  //   return [user];
-  // }
+  async login(email: string, password: string): Promise<Token> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException(`No user found for email: ${email}`);
+    }
+
+    const passwordValid = await this.passwordService.validatePassword(
+      password,
+      user.password,
+    );
+
+    if (!passwordValid) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    return this.generateTokens({
+      userId: user.id,
+    });
+  }
+
+  getUserFromToken(token: string): Promise<User> {
+    const id = this.jwtService.decode(token)['userId'];
+    return this.prisma.user.findUnique({ where: { id } });
+  }
 
   generateTokens(payload: { userId: string }): Token {
     return {
