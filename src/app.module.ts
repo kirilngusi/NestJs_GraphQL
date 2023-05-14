@@ -8,6 +8,7 @@ import { join } from 'path';
 import { PrismaModule, loggingMiddleware } from 'nestjs-prisma';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './modules/user/user.module';
+import { ProductModule } from './modules/product/product.module';
 import config from './modules/common/configs/config';
 
 @Module({
@@ -31,6 +32,7 @@ import config from './modules/common/configs/config';
     }),
     AuthModule,
     UserModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

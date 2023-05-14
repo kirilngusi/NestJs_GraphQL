@@ -56,11 +56,13 @@ Table Product {
   updatedAt DateTime [not null]
   deleted Boolean [not null, default: false]
   Order_Details Order_Details [not null]
+  Product_Entry Product_Entry [not null]
 }
 
 Table Images {
   id String [pk]
   createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
   Product Product
   productId String
 }
@@ -69,6 +71,29 @@ Table Category {
   id String [pk]
   name String [unique, not null]
   product Product [not null]
+}
+
+Table Product_Entry {
+  id String [pk]
+  additional_price Float [not null]
+  capacity Capacity [not null]
+  colour Colour [not null]
+  Product Product
+  productId String
+}
+
+Table Capacity {
+  id String [pk]
+  capacity String
+  productEntry Product_Entry
+  productEntryId String [not null]
+}
+
+Table Colour {
+  id String [pk]
+  colour String
+  productEntry Product_Entry
+  productEntryId String [not null]
 }
 
 Enum Role {
@@ -85,3 +110,9 @@ Ref: Order_Details.orderId > Order.id
 Ref: Product.category_Id_Relation > Category.id
 
 Ref: Images.productId > Product.id
+
+Ref: Product_Entry.productId > Product.id
+
+Ref: Capacity.productEntryId > Product_Entry.id
+
+Ref: Colour.productEntryId > Product_Entry.id

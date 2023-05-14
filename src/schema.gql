@@ -49,6 +49,23 @@ enum Role {
   USER
 }
 
+type Product {
+  id: ID!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  name: String!
+  price: Float!
+  priceSale: Float!
+  description: String!
+  Sold: Int!
+  In_Stock: Int!
+  deleted: Boolean!
+}
+
 type Query {
   sayHello: String!
   chipAccount: User!
@@ -58,6 +75,7 @@ type Mutation {
   signup(data: SignupInput!): Auth!
   login(data: LoginInput!): Auth!
   refreshToken(token: JWT!): Token!
+  createProduct(data: ProductInput!): Product!
 }
 
 input SignupInput {
@@ -70,4 +88,13 @@ input SignupInput {
 input LoginInput {
   email: String!
   password: String!
+}
+
+input ProductInput {
+  name: String!
+  price: Float! = 0
+  priceSale: Float! = 0
+  description: String!
+  Sold: Int! = 0
+  In_Stock: Int! = 0
 }

@@ -70,11 +70,13 @@ model Product {
 
   deleted       Boolean         @default(false)
   Order_Details Order_Details[]
+  Product_Entry Product_Entry[]
 }
 
 model Images {
   id            String   @id @default(cuid())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   Product   Product? @relation(fields: [productId], references: [id])
   productId String?
@@ -86,6 +88,29 @@ model Category {
   name String @unique
 
   product Product[]
+}
+
+model Product_Entry {
+      id            String   @id @default(cuid())
+      additional_price Float
+      capacity Capacity[]
+      colour Colour[]
+      Product   Product? @relation(fields: [productId], references: [id])
+      productId String?
+}
+
+model Capacity {
+      id             String   @id @default(cuid())
+      capacity       String?
+      productEntry   Product_Entry? @relation(fields: [productEntryId], references: [id])
+      productEntryId String
+}
+
+model Colour {
+      id             String   @id @default(cuid())
+      colour         String?
+      productEntry   Product_Entry? @relation(fields: [productEntryId], references: [id])
+      productEntryId String
 }
 
 enum Role {
