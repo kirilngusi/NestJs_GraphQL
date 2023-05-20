@@ -66,16 +66,28 @@ type Product {
   deleted: Boolean!
 }
 
+type Category {
+  id: ID!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  name: String!
+}
+
 type Query {
   sayHello: String!
   chipAccount: User!
+  findAllCategory: Category!
 }
 
 type Mutation {
   signup(data: SignupInput!): Auth!
   login(data: LoginInput!): Auth!
   refreshToken(token: JWT!): Token!
-  createProduct(data: ProductInput!): Product!
+  createProduct(data: CategoryInput!): Category!
 }
 
 input SignupInput {
@@ -90,11 +102,6 @@ input LoginInput {
   password: String!
 }
 
-input ProductInput {
+input CategoryInput {
   name: String!
-  price: Float! = 0
-  priceSale: Float! = 0
-  description: String!
-  Sold: Int! = 0
-  In_Stock: Int! = 0
 }
